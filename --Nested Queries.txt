@@ -1,0 +1,33 @@
+--Nested Queries
+
+-- Find names of all employees who have sold over 10,000
+SELECT employee.first_name, employee.last_name , emp_id
+FROM employee
+WHERE employee.emp_id IN (SELECT works_with.emp_id
+                          FROM works_with
+                          WHERE works_with.total_sales > 10000);
+
+
+-- Find all clients who are handles by the branch that Amitabh Bacchan manages
+-- Assume we know Amitabh's ID
+
+SELECT client.client_id, client.client_name
+FROM client
+WHERE client.branch_id = (SELECT branch.branch_id
+                          FROM branch
+                          WHERE branch.mgr_id = 106);
+
+
+
+-- Find the names and ids of all clients who have spent more than 100,000 dollars
+
+SELECT client.client_name , client_id
+FROM client
+WHERE client.client_id IN (
+                          SELECT client_id
+                          FROM (
+                                SELECT SUM(works_with.total_sales) AS totals, client_id
+                                FROM works_with
+                                GROUP BY client_id) AS total_client_sales
+                          WHERE totals > 100000
+);
